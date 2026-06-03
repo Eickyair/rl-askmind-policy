@@ -1,0 +1,40 @@
+# Entorno virtual
+.venv/
+venv/
+env/
+
+# Artefactos de macOS
+__MACOSX/
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# Herramientas de agentes
+.agents/
+.codex/
+
+# Salidas/checkpoints de modelos
+*.pt
+*.ckpt
+*.npz
+
+# Datos
+askmind_data/
+*.xlsm
+*.csv
+*.jsonl
+*.json
+
+# Documentos / referencias
+*.pdf
+*.md
+
+# Notebooks no relevantes (solo se preserva el notebook askmind_mlp_baselines)
+policy_baselines.ipynb
+
+# Script no relevante
+askmind_mlp_baselines.py
