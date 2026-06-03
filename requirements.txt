@@ -1,0 +1,28 @@
+# =====================================================================
+# AskMind — política conversacional ask/respond (baselines MLP)
+# Dependencias exactas verificadas con Python 3.12.3
+# =====================================================================
+#
+# Instalación rápida (CPU, cualquier SO):
+#   pip install -r requirements.txt
+#
+# Para GPU NVIDIA (CUDA), instala torch aparte ANTES de este archivo:
+#   pip install torch==2.12.0 --index-url https://download.pytorch.org/whl/cu130
+# y luego:
+#   pip install -r requirements.txt
+# (ver README.md → sección "Instalación por sistema operativo")
+# ---------------------------------------------------------------------
+
+# --- Núcleo numérico / datos ---
+numpy==2.4.5
+pandas==3.0.3
+scipy==1.17.1
+scikit-learn==1.8.0
+
+# --- Deep learning (rueda CPU por defecto desde PyPI en macOS;
+#     en Linux/Windows usa el índice oficial de PyTorch, ver README) ---
+torch==2.12.0
+
+# --- Ejecución del notebook (.ipynb) ---
+ipython==9.13.0
+ipykernel==7.2.0

@@ -32,6 +32,7 @@ askmind_data/
 # Documentos / referencias
 *.pdf
 *.md
+!README.md
 
 # Notebooks no relevantes (solo se preserva el notebook askmind_mlp_baselines)
 policy_baselines.ipynb
