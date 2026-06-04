@@ -1,57 +1,57 @@
-# AskMind — Política conversacional `ask` / `respond` (Baselines MLP)
+# AskMind — Conversational `ask` / `respond` policy (MLP baselines)
 
-Proyecto final de **Aprendizaje por Refuerzo**. Entrena baselines tipo **MLP** para
-una política conversacional binaria que decide, en cada turno, si el sistema debe:
+Final project for **Reinforcement Learning**. It trains **MLP** baselines for a binary
+conversational policy that decides, at each turn, whether the system should:
 
-- **`ask`** — pedir una aclaración adicional al usuario, o
-- **`respond`** — responder con el contexto disponible.
+- **`ask`** — request an additional clarification from the user, or
+- **`respond`** — answer with the available context.
 
-El proyecto se construye sobre la dimensión **AskMind** del benchmark
-[**AskBench**](https://arxiv.org/abs/2602.11199) (*When and What to Ask: AskBench and
-Rubric-Guided RLVR for LLM Clarification*). A partir de preguntas "degradadas"
-(con información faltante o ambigua) y sus *required points*, se modela el problema
-como un MDP de decisión por turno y se entrenan baselines de **policy gradient** y
-**Q-learning** sobre embeddings TF-IDF + SVD del estado conversacional.
+The project builds on the **AskMind** dimension of the
+[**AskBench**](https://arxiv.org/abs/2602.11199) benchmark (*When and What to Ask: AskBench and
+Rubric-Guided RLVR for LLM Clarification*). Starting from "degraded" questions
+(with missing or ambiguous information) and their *required points*, the problem is modeled
+as a per-turn decision MDP, and **policy gradient** and **Q-learning** baselines are trained
+over TF-IDF + SVD embeddings of the conversational state.
 
 ---
 
-## 1. Contenido del repositorio
+## 1. Repository contents
 
-| Archivo | Descripción |
+| File | Description |
 | --- | --- |
-| [`askmind_mlp_baselines.ipynb`](askmind_mlp_baselines.ipynb) | Notebook principal **autocontenido**: descarga el dataset, construye el dataset tabular, formaliza el MDP, entrena y evalúa los baselines y reporta la tabla final en test. |
-| [`requirements.txt`](requirements.txt) | Dependencias con versiones exactas. |
-| [`README.md`](README.md) | Esta guía. |
-| `.gitignore` | Excluye datos, artefactos y archivos no relevantes. |
+| [`askmind_mlp_baselines.ipynb`](askmind_mlp_baselines.ipynb) | Main **self-contained** notebook: downloads the dataset, builds the tabular dataset, formalizes the MDP, trains and evaluates the baselines, and reports the final test table. |
+| [`requirements.txt`](requirements.txt) | Dependencies with exact versions. |
+| [`README.md`](README.md) | This guide. |
+| `.gitignore` | Excludes data, artifacts and non-relevant files. |
 
-### Qué produce el notebook (entregables)
+### What the notebook produces (deliverables)
 
-1. **Formulación formal del problema como MDP** (sección en inglés, lista para el paper):
-   estado, espacio de acciones `ASK/ANSWER`, dinámica de transición y función de recompensa.
-2. **Split de 3 vías** train/validation/test (60/20/20) **agrupado por `ori_question`**, para
-   reportar métricas en un **test held-out con etiquetas** (el `test.jsonl` oficial no las trae).
-3. **Seis sistemas comparables**: `Always ASK`, `Always ANSWER`, `Random`, `Supervised MLP`,
-   `MLP Policy Gradient` y `MLP Q-learning`.
-4. **Tabla final de sistemas** en validation y test con `Accuracy`, `Macro F1`, `Ask rate` y
+1. **Formal MDP problem statement** (paper-ready section, in English): state, `ASK/ANSWER`
+   action space, transition dynamics and reward function.
+2. **Three-way split** train/validation/test (60/20/20) **grouped by `ori_question`**, to
+   report metrics on a **held-out test with labels** (the official `test.jsonl` has none).
+3. **Six comparable systems**: `Always ASK`, `Always ANSWER`, `Random`, `Supervised MLP`,
+   `MLP Policy Gradient` and `MLP Q-learning`.
+4. **Final systems table** on validation and test with `Accuracy`, `Macro F1`, `Ask rate` and
    `Avg reward`.
-5. **Ablación OFAT**: efecto del costo de preguntar (bajo/medio/alto) sobre `ask_rate` y `reward`.
-6. **Error analysis** con 5 ejemplos (respondió antes de aclarar / preguntó de más / correcto).
+5. **OFAT ablation**: effect of the cost of asking (low/medium/high) on `ask_rate` and `reward`.
+6. **Error analysis** with 5 examples (answered before clarifying / asked too much / correct).
 
-> **Nota:** el dataset (`askmind_data/`) **no** se versiona en git. El notebook lo
-> **descarga automáticamente** desde Hugging Face la primera vez que se ejecuta
-> (ver §5). Así el repositorio queda ligero y reproducible.
+> **Note:** the dataset (`askmind_data/`) is **not** versioned in git. The notebook
+> **downloads it automatically** from Hugging Face the first time it runs
+> (see §5). This keeps the repository light and reproducible.
 
 ---
 
-## 2. Requisitos
+## 2. Requirements
 
-- **Python 3.12** (probado con 3.12.3). Versiones 3.10–3.12 deberían funcionar.
-- **pip ≥ 23** y `venv` (incluido en Python).
-- ~2 GB de espacio (la rueda de PyTorch es la dependencia más pesada).
-- Conexión a internet en la **primera** ejecución del notebook (descarga ~17 MB de datos).
-- GPU NVIDIA **opcional** (acelera el entrenamiento; no es necesaria).
+- **Python 3.12** (tested with 3.12.3). Versions 3.10–3.12 should work.
+- **pip ≥ 23** and `venv` (included with Python).
+- ~2 GB of disk space (the PyTorch wheel is the heaviest dependency).
+- Internet access on the **first** notebook run (downloads ~17 MB of data).
+- NVIDIA GPU **optional** (speeds up training; not required).
 
-Versiones exactas (ver [`requirements.txt`](requirements.txt)):
+Exact versions (see [`requirements.txt`](requirements.txt)):
 
 ```text
 numpy==2.4.5        pandas==3.0.3        scipy==1.17.1
@@ -60,206 +60,206 @@ scikit-learn==1.8.0 torch==2.12.0        ipython==9.13.0     ipykernel==7.2.0
 
 ---
 
-## 3. Instalación por sistema operativo
+## 3. Installation per operating system
 
-El flujo es el mismo en todos los SO: **(1)** crear un entorno virtual, **(2)** instalar
-PyTorch con la rueda adecuada (CPU o GPU), **(3)** instalar el resto con `requirements.txt`.
+The flow is the same on every OS: **(1)** create a virtual environment, **(2)** install
+PyTorch with the right wheel (CPU or GPU), **(3)** install the rest with `requirements.txt`.
 
 ### 🐧 Linux
 
 ```bash
-# 1) Entorno virtual
+# 1) Virtual environment
 python3.12 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
 
 # 2) PyTorch
-#    a) CPU (recomendado si no tienes GPU NVIDIA):
+#    a) CPU (recommended if you don't have an NVIDIA GPU):
 pip install torch==2.12.0 --index-url https://download.pytorch.org/whl/cpu
-#    b) GPU NVIDIA con CUDA 13.0 (alternativa):
+#    b) NVIDIA GPU with CUDA 13.0 (alternative):
 # pip install torch==2.12.0 --index-url https://download.pytorch.org/whl/cu130
 
-# 3) Resto de dependencias
+# 3) Remaining dependencies
 pip install -r requirements.txt
 ```
 
-### 🍎 macOS (Intel y Apple Silicon)
+### 🍎 macOS (Intel and Apple Silicon)
 
-En macOS no hay CUDA; la rueda de PyPI ya es CPU/MPS, así que basta:
+There is no CUDA on macOS; the PyPI wheel is already CPU/MPS, so this is enough:
 
 ```bash
-# 1) Entorno virtual
+# 1) Virtual environment
 python3.12 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
 
-# 2) + 3) Todo de una vez (torch viene de PyPI, soporta MPS en Apple Silicon)
+# 2) + 3) All at once (torch comes from PyPI, supports MPS on Apple Silicon)
 pip install -r requirements.txt
 ```
 
-> En Apple Silicon, PyTorch usa el backend **MPS** automáticamente si está disponible.
-> El notebook detecta el dispositivo (`cuda`/`cpu`) por sí solo; para forzar MPS, edita
-> `BaselineConfig.device` a `"mps"`.
+> On Apple Silicon, PyTorch uses the **MPS** backend automatically if available.
+> The notebook detects the device (`cuda`/`cpu`) by itself; to force MPS, edit
+> `BaselineConfig.device` to `"mps"`.
 
 ### 🪟 Windows
 
 **PowerShell:**
 
 ```powershell
-# 1) Entorno virtual
+# 1) Virtual environment
 py -3.12 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 
 # 2) PyTorch (CPU)
 pip install torch==2.12.0 --index-url https://download.pytorch.org/whl/cpu
-#    GPU NVIDIA (CUDA 13.0):
+#    NVIDIA GPU (CUDA 13.0):
 # pip install torch==2.12.0 --index-url https://download.pytorch.org/whl/cu130
 
-# 3) Resto
+# 3) Rest
 pip install -r requirements.txt
 ```
 
-**CMD (`cmd.exe`):** idéntico, pero activa con:
+**CMD (`cmd.exe`):** identical, but activate with:
 
 ```bat
 .\.venv\Scripts\activate.bat
 ```
 
-> Si `Activate.ps1` falla por política de ejecución, abre PowerShell como usuario y ejecuta:
+> If `Activate.ps1` fails due to the execution policy, open PowerShell as your user and run:
 > `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned`.
 
-### 🐍 (Opcional) Conda — cualquier SO
+### 🐍 (Optional) Conda — any OS
 
 ```bash
 conda create -n askmind python=3.12 -y
 conda activate askmind
-pip install -r requirements.txt   # o instala torch con su índice como arriba
+pip install -r requirements.txt   # or install torch with its index as above
 ```
 
 ---
 
-## 4. Registrar el kernel de Jupyter
+## 4. Register the Jupyter kernel
 
-Para que el notebook use exactamente este entorno:
+So the notebook uses exactly this environment:
 
 ```bash
 python -m ipykernel install --user --name askmind --display-name "AskMind (.venv 3.12)"
 ```
 
-En **VS Code** basta con seleccionar el intérprete `.venv` en la esquina superior
-derecha del notebook; no hace falta registrar el kernel manualmente.
+In **VS Code** it is enough to select the `.venv` interpreter in the top-right corner of
+the notebook; you do not need to register the kernel manually.
 
 ---
 
-## 5. Dataset: descarga automática (notebook autocontenido)
+## 5. Dataset: automatic download (self-contained notebook)
 
-No necesitas descargar nada a mano. La celda **"0. Descarga automática del dataset"**
-del notebook ejecuta `ensure_askmind_dataset(...)`, que:
+You don't need to download anything by hand. The **"0. Automatic dataset download"** cell
+of the notebook runs `ensure_askmind_dataset(...)`, which:
 
-1. Comprueba si ya existen `askmind_data/train.jsonl` y `askmind_data/test.jsonl`.
-   Si están presentes, **omite** la descarga.
-2. Si faltan, descarga los archivos crudos de AskBench desde Hugging Face:
+1. Checks whether `askmind_data/train.jsonl` and `askmind_data/test.jsonl` already exist.
+   If present, it **skips** the download.
+2. If missing, it downloads the raw AskBench files from Hugging Face:
    - **train** → [`jialeuuz/askbench_train` → `mind.jsonl`](https://huggingface.co/datasets/jialeuuz/askbench_train)
    - **test** → [`jialeuuz/askbench_bench` → `ask_bench_data/ask_mind.jsonl`](https://huggingface.co/datasets/jialeuuz/askbench_bench)
-3. Aplica el **mismo preprocesamiento** del proyecto: elimina filas con caracteres
-   **Han/CJK**, descarta líneas vacías o inválidas y normaliza cada registro como una
-   línea JSON.
-4. Escribe `askmind_data/train.jsonl` (**5830** ejemplos), `askmind_data/test.jsonl`
-   (**399** ejemplos) y un `MANIFEST.csv`.
+3. Applies the **same preprocessing** as the project: removes rows with
+   **Han/CJK** characters, drops empty or invalid lines and normalizes each record as a
+   single JSON line.
+4. Writes `askmind_data/train.jsonl` (**5830** examples), `askmind_data/test.jsonl`
+   (**399** examples) and a `MANIFEST.csv`.
 
-> El conteo y el contenido resultantes son **idénticos** al dataset original del proyecto
-> (verificado registro a registro). Solo usa `stdlib` (`urllib`), sin dependencias extra.
+> The resulting count and content are **identical** to the project's original dataset
+> (verified record by record). It only uses `stdlib` (`urllib`), with no extra dependencies.
 
-Para **forzar** una redescarga, en esa celda llama:
+To **force** a re-download, in that cell call:
 `ensure_askmind_dataset(config.data_dir, force=True)`.
 
-### Campos del dataset
+### Dataset fields
 
-- `degraded_question`: pregunta incompleta que ve el modelo (entrada de la política).
-- `degraded_info`: descripción de la información removida o ambigua.
-- `required_points`: checkpoints que el modelo debe cubrir preguntando.
-- `conversation_history`: trayectoria multi-turno (usuario/asistente).
-- `ori_question` / `expected_answer`: referencia para evaluación (no son entrada de la política).
+- `degraded_question`: incomplete question seen by the model (policy input).
+- `degraded_info`: description of the removed or ambiguous information.
+- `required_points`: checkpoints the model should cover by asking.
+- `conversation_history`: multi-turn trajectory (user/assistant).
+- `ori_question` / `expected_answer`: evaluation reference (not policy inputs).
 
 ---
 
-## 6. Cómo ejecutar el proyecto
+## 6. How to run the project
 
-### Opción A — VS Code (recomendada)
+### Option A — VS Code (recommended)
 
-1. Abre la carpeta del proyecto en VS Code.
-2. Abre [`askmind_mlp_baselines.ipynb`](askmind_mlp_baselines.ipynb).
-3. Selecciona el intérprete/kernel `.venv` (3.12).
-4. **Run All**. La primera ejecución descargará el dataset automáticamente.
+1. Open the project folder in VS Code.
+2. Open [`askmind_mlp_baselines.ipynb`](askmind_mlp_baselines.ipynb).
+3. Select the `.venv` interpreter/kernel (3.12).
+4. **Run All**. The first run will download the dataset automatically.
 
-### Opción B — JupyterLab / Jupyter Notebook
+### Option B — JupyterLab / Jupyter Notebook
 
 ```bash
-pip install jupyterlab          # si aún no lo tienes
-jupyter lab                     # o: jupyter notebook
-# abre askmind_mlp_baselines.ipynb y ejecuta todas las celdas
+pip install jupyterlab          # if you don't have it yet
+jupyter lab                     # or: jupyter notebook
+# open askmind_mlp_baselines.ipynb and run all cells
 ```
 
-### Opción C — ejecución headless (sin abrir la UI)
+### Option C — headless execution (without opening the UI)
 
-Ejecuta el notebook de principio a fin desde la terminal:
+Run the notebook end to end from the terminal:
 
 ```bash
 pip install jupyter
 jupyter nbconvert --to notebook --execute --inplace askmind_mlp_baselines.ipynb
 ```
 
-> Esto corre todas las celdas (incluida la descarga del dataset) y guarda las salidas
-> en el propio `.ipynb`. Útil para CI o para verificar reproducibilidad.
+> This runs all cells (including the dataset download) and stores the outputs
+> in the `.ipynb` itself. Useful for CI or to verify reproducibility.
 
 ---
 
-## 7. Configuración de hiperparámetros
+## 7. Hyperparameter configuration
 
-Todos los parámetros viven en la dataclass `BaselineConfig` del notebook (celda de
-*imports/config*). Los más relevantes:
+All parameters live in the `BaselineConfig` dataclass of the notebook (the
+*imports/config* cell). The most relevant ones:
 
-| Parámetro | Valor por defecto | Significado |
+| Parameter | Default value | Meaning |
 | --- | --- | --- |
-| `data_dir` | `askmind_data` | Carpeta del dataset descargado. |
-| `validation_fraction` | `0.20` | Fracción de grupos reservada a validación (split por `ori_question`). |
-| `test_fraction` | `0.20` | Fracción de grupos reservada al test held-out (split por `ori_question`). |
-| `ask_cost_levels` | `(low 0.0, medium 0.3, high 0.6)` | Niveles de costo de preguntar para la ablación OFAT. |
-| `random_seed` | `42` | Semilla global (numpy + torch). |
-| `tfidf_max_features` | `4096` | Vocabulario máximo del TF-IDF. |
-| `embedding_dim` | `256` | Dimensión objetivo del SVD sobre TF-IDF. |
-| `batch_size` | `128` | Tamaño de lote. |
-| `hidden_dims` | `(256, 128)` | Capas ocultas del MLP. |
-| `epochs` | `5` | Épocas de entrenamiento. |
-| `device` | auto (`cuda`/`cpu`) | Dispositivo de cómputo. |
-| `precomputed_embeddings` | `None` | Ruta opcional a un `.npz` para reemplazar TF-IDF+SVD. |
+| `data_dir` | `askmind_data` | Folder of the downloaded dataset. |
+| `validation_fraction` | `0.20` | Fraction of groups reserved for validation (split by `ori_question`). |
+| `test_fraction` | `0.20` | Fraction of groups reserved for the held-out test (split by `ori_question`). |
+| `ask_cost_levels` | `(low 0.0, medium 0.3, high 0.6)` | Cost-of-asking levels for the OFAT ablation. |
+| `random_seed` | `42` | Global seed (numpy + torch). |
+| `tfidf_max_features` | `4096` | Maximum TF-IDF vocabulary. |
+| `embedding_dim` | `256` | Target SVD dimension over TF-IDF. |
+| `batch_size` | `128` | Batch size. |
+| `hidden_dims` | `(256, 128)` | MLP hidden layers. |
+| `epochs` | `5` | Training epochs. |
+| `device` | auto (`cuda`/`cpu`) | Compute device. |
+| `precomputed_embeddings` | `None` | Optional path to a `.npz` to replace TF-IDF+SVD. |
 
 ---
 
-## 8. Reproducibilidad
+## 8. Reproducibility
 
-- Semilla fija (`random_seed=42`) sobre numpy y torch.
-- El split train/validación/**test** se hace **agrupando por `ori_question`** para evitar fuga
-  entre turnos y variantes de una misma conversación; así el test held-out es comparable a
-  validación y conserva etiquetas de acción.
-- El preprocesamiento del dataset es determinista (filtro Han + normalización JSON).
+- Fixed seed (`random_seed=42`) over numpy and torch, reset before each trained model.
+- The train/validation/**test** split is done by **grouping on `ori_question`** to avoid
+  leakage between turns and variants of the same conversation; this makes the held-out test
+  comparable to validation and keeps action labels.
+- The dataset preprocessing is deterministic (Han filter + JSON normalization).
 
 ---
 
-## 9. Solución de problemas
+## 9. Troubleshooting
 
-| Síntoma | Causa / solución |
+| Symptom | Cause / fix |
 | --- | --- |
-| `ModuleNotFoundError: torch` | No instalaste PyTorch o activaste otro entorno. Reactiva `.venv` e instala con el índice correcto (§3). |
-| Descarga de torch enorme / lenta en CPU | Usa el índice CPU: `--index-url https://download.pytorch.org/whl/cpu`. |
-| `URLError` / timeout al descargar el dataset | Revisa tu conexión; reintenta la celda. Si tienes los `.jsonl`, colócalos en `askmind_data/` y la descarga se omite. |
-| El notebook no encuentra el kernel | Registra el kernel (§4) o selecciona el intérprete `.venv` en VS Code. |
-| `Activate.ps1 cannot be loaded` (Windows) | Ajusta la política de ejecución (ver nota en §3 → Windows). |
+| `ModuleNotFoundError: torch` | You didn't install PyTorch or activated another environment. Reactivate `.venv` and install with the correct index (§3). |
+| Huge / slow torch download on CPU | Use the CPU index: `--index-url https://download.pytorch.org/whl/cpu`. |
+| `URLError` / timeout while downloading the dataset | Check your connection; retry the cell. If you already have the `.jsonl` files, place them in `askmind_data/` and the download is skipped. |
+| The notebook can't find the kernel | Register the kernel (§4) or select the `.venv` interpreter in VS Code. |
+| `Activate.ps1 cannot be loaded` (Windows) | Adjust the execution policy (see the note in §3 → Windows). |
 
 ---
 
-## 10. Referencias
+## 10. References
 
 - **Paper:** Zhao, Fang, Cheng. *When and What to Ask: AskBench and Rubric-Guided RLVR
   for LLM Clarification.* arXiv:[2602.11199](https://arxiv.org/abs/2602.11199) (2026).
