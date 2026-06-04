@@ -19,10 +19,23 @@ como un MDP de decisión por turno y se entrenan baselines de **policy gradient*
 
 | Archivo | Descripción |
 | --- | --- |
-| [`askmind_mlp_baselines.ipynb`](askmind_mlp_baselines.ipynb) | Notebook principal **autocontenido**: descarga el dataset, construye el dataset tabular, entrena y evalúa los baselines. |
+| [`askmind_mlp_baselines.ipynb`](askmind_mlp_baselines.ipynb) | Notebook principal **autocontenido**: descarga el dataset, construye el dataset tabular, formaliza el MDP, entrena y evalúa los baselines y reporta la tabla final en test. |
 | [`requirements.txt`](requirements.txt) | Dependencias con versiones exactas. |
 | [`README.md`](README.md) | Esta guía. |
 | `.gitignore` | Excluye datos, artefactos y archivos no relevantes. |
+
+### Qué produce el notebook (entregables)
+
+1. **Formulación formal del problema como MDP** (sección en inglés, lista para el paper):
+   estado, espacio de acciones `ASK/ANSWER`, dinámica de transición y función de recompensa.
+2. **Split de 3 vías** train/validation/test (60/20/20) **agrupado por `ori_question`**, para
+   reportar métricas en un **test held-out con etiquetas** (el `test.jsonl` oficial no las trae).
+3. **Seis sistemas comparables**: `Always ASK`, `Always ANSWER`, `Random`, `Supervised MLP`,
+   `MLP Policy Gradient` y `MLP Q-learning`.
+4. **Tabla final de sistemas** en validation y test con `Accuracy`, `Macro F1`, `Ask rate` y
+   `Avg reward`.
+5. **Ablación OFAT**: efecto del costo de preguntar (bajo/medio/alto) sobre `ask_rate` y `reward`.
+6. **Error analysis** con 5 ejemplos (respondió antes de aclarar / preguntó de más / correcto).
 
 > **Nota:** el dataset (`askmind_data/`) **no** se versiona en git. El notebook lo
 > **descarga automáticamente** desde Hugging Face la primera vez que se ejecuta
@@ -210,7 +223,9 @@ Todos los parámetros viven en la dataclass `BaselineConfig` del notebook (celda
 | Parámetro | Valor por defecto | Significado |
 | --- | --- | --- |
 | `data_dir` | `askmind_data` | Carpeta del dataset descargado. |
-| `validation_fraction` | `0.20` | Fracción de `train` reservada a validación (split por `ori_question`). |
+| `validation_fraction` | `0.20` | Fracción de grupos reservada a validación (split por `ori_question`). |
+| `test_fraction` | `0.20` | Fracción de grupos reservada al test held-out (split por `ori_question`). |
+| `ask_cost_levels` | `(low 0.0, medium 0.3, high 0.6)` | Niveles de costo de preguntar para la ablación OFAT. |
 | `random_seed` | `42` | Semilla global (numpy + torch). |
 | `tfidf_max_features` | `4096` | Vocabulario máximo del TF-IDF. |
 | `embedding_dim` | `256` | Dimensión objetivo del SVD sobre TF-IDF. |
@@ -225,8 +240,9 @@ Todos los parámetros viven en la dataclass `BaselineConfig` del notebook (celda
 ## 8. Reproducibilidad
 
 - Semilla fija (`random_seed=42`) sobre numpy y torch.
-- El split train/validación se hace **agrupando por `ori_question`** para evitar fuga
-  entre turnos de una misma conversación.
+- El split train/validación/**test** se hace **agrupando por `ori_question`** para evitar fuga
+  entre turnos y variantes de una misma conversación; así el test held-out es comparable a
+  validación y conserva etiquetas de acción.
 - El preprocesamiento del dataset es determinista (filtro Han + normalización JSON).
 
 ---
