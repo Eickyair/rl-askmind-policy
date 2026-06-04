@@ -65,7 +65,7 @@ scikit-learn==1.8.0 torch==2.12.0        ipython==9.13.0     ipykernel==7.2.0
 The flow is the same on every OS: **(1)** create a virtual environment, **(2)** install
 PyTorch with the right wheel (CPU or GPU), **(3)** install the rest with `requirements.txt`.
 
-### 🐧 Linux
+### Linux
 
 ```bash
 # 1) Virtual environment
@@ -83,7 +83,7 @@ pip install torch==2.12.0 --index-url https://download.pytorch.org/whl/cpu
 pip install -r requirements.txt
 ```
 
-### 🍎 macOS (Intel and Apple Silicon)
+### macOS (Intel and Apple Silicon)
 
 There is no CUDA on macOS; the PyPI wheel is already CPU/MPS, so this is enough:
 
@@ -101,7 +101,7 @@ pip install -r requirements.txt
 > The notebook detects the device (`cuda`/`cpu`) by itself; to force MPS, edit
 > `BaselineConfig.device` to `"mps"`.
 
-### 🪟 Windows
+### Windows
 
 **PowerShell:**
 
@@ -129,7 +129,7 @@ pip install -r requirements.txt
 > If `Activate.ps1` fails due to the execution policy, open PowerShell as your user and run:
 > `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned`.
 
-### 🐍 (Optional) Conda — any OS
+### (Optional) Conda — any OS
 
 ```bash
 conda create -n askmind python=3.12 -y
